@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Planner | Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="AI Study Planner dashboard">
+      <span class="brand-mark">AI</span>
+      <span>
+        <strong>AI Study Planner</strong>
+        <small>International student learning assistant</small>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main navigation">
+      <a class="active" href="index.html">Dashboard</a>
+      <a href="resources.html">Resources</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="workspace-intro">
+      <div>
+        <p class="eyebrow">Today</p>
+        <h1>Plan focused study time with AI-assisted task suggestions.</h1>
+      </div>
+      <form class="quick-add" id="quickAddForm">
+        <label for="taskTitle">New study task</label>
+        <div class="quick-row">
+          <input id="taskTitle" name="taskTitle" type="text" placeholder="e.g. Finish JavaScript event practice">
+          <button type="submit">Add</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="metric-grid" aria-label="Study summary">
+      <article class="metric-card">
+        <span>Weekly progress</span>
+        <strong id="progressValue">50%</strong>
+        <div class="meter" aria-hidden="true"><span id="progressMeter" style="width: 50%"></span></div>
+      </article>
+      <article class="metric-card">
+        <span>Tasks done</span>
+        <strong id="doneCount">2 / 4</strong>
+        <div class="meter mint" aria-hidden="true"><span id="doneMeter" style="width: 50%"></span></div>
+      </article>
+      <article class="metric-card">
+        <span>Focus time</span>
+        <strong>2h 35m</strong>
+        <div class="meter coral" aria-hidden="true"><span style="width: 52%"></span></div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Task board</p>
+            <h2>Priority list</h2>
+          </div>
+          <select id="taskFilter" aria-label="Filter tasks">
+            <option value="all">All tasks</option>
+            <option value="open">Open</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <ul class="task-list" id="taskList">
+          <li data-status="done">
+            <label>
+              <input type="checkbox" checked>
+              <span>
+                <strong>Read front-end project requirements</strong>
+                <small>Requirement decomposition</small>
+              </span>
+            </label>
+            <em>Completed</em>
+          </li>
+          <li data-status="done">
+            <label>
+              <input type="checkbox" checked>
+              <span>
+                <strong>Draft AI prompt for dashboard layout</strong>
+                <small>Prompt engineering</small>
+              </span>
+            </label>
+            <em>Completed</em>
+          </li>
+          <li data-status="open">
+            <label>
+              <input type="checkbox">
+              <span>
+                <strong>Improve responsive CSS for mobile</strong>
+                <small>Debugging and optimization</small>
+              </span>
+            </label>
+            <em>Due today</em>
+          </li>
+          <li data-status="open">
+            <label>
+              <input type="checkbox">
+              <span>
+                <strong>Write review summary in course paper</strong>
+                <small>Review and summary</small>
+              </span>
+            </label>
+            <em>Due tomorrow</em>
+          </li>
+        </ul>
+      </article>
+
+      <aside class="panel assistant-panel">
+        <p class="eyebrow">AI suggestion</p>
+        <h2>Recommended next step</h2>
+        <p id="aiAdvice">Start with the open task that has the closest deadline, then review the generated page on a phone-sized screen.</p>
+        <button class="secondary-button" id="refreshAdvice" type="button">Refresh suggestion</button>
+      </aside>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Weekly plan</p>
+            <h2>Study schedule</h2>
+          </div>
+        </div>
+        <div class="schedule">
+          <div><strong>Mon</strong><span>HTML structure</span></div>
+          <div><strong>Tue</strong><span>CSS layout</span></div>
+          <div class="current"><strong>Wed</strong><span>JavaScript events</span></div>
+          <div><strong>Thu</strong><span>Testing</span></div>
+          <div><strong>Fri</strong><span>Course paper</span></div>
+        </div>
+      </article>
+
+      <article class="panel timer-panel">
+        <p class="eyebrow">Focus timer</p>
+        <h2 id="timerDisplay">25:00</h2>
+        <div class="timer-actions">
+          <button type="button" id="startTimer">Start</button>
+          <button type="button" class="secondary-button" id="resetTimer">Reset</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

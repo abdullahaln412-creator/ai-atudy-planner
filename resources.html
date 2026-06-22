@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Planner | Resources</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="AI Study Planner dashboard">
+      <span class="brand-mark">AI</span>
+      <span>
+        <strong>AI Study Planner</strong>
+        <small>International student learning assistant</small>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="index.html">Dashboard</a>
+      <a class="active" href="resources.html">Resources</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="workspace-intro">
+      <div>
+        <p class="eyebrow">Resource center</p>
+        <h1>Keep prompts, references, and debugging notes in one place.</h1>
+      </div>
+      <div class="search-box">
+        <label for="resourceSearch">Search resources</label>
+        <input id="resourceSearch" type="search" placeholder="Search prompt, CSS, testing...">
+      </div>
+    </section>
+
+    <section class="resource-layout">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Project method</p>
+            <h2>AI-assisted development process</h2>
+          </div>
+        </div>
+        <ol class="process-list">
+          <li>
+            <strong>Requirement decomposition</strong>
+            <span>Split the page into dashboard, task board, schedule, timer, and resource center modules.</span>
+          </li>
+          <li>
+            <strong>Prompt engineering</strong>
+            <span>Ask the AI model for page structure, responsive layout, interaction ideas, and code review suggestions.</span>
+          </li>
+          <li>
+            <strong>Code generation</strong>
+            <span>Generate semantic HTML, shared CSS, and lightweight JavaScript for local browser execution.</span>
+          </li>
+          <li>
+            <strong>Debugging and optimization</strong>
+            <span>Check mobile layout, keyboard navigation, state changes, and readable color contrast.</span>
+          </li>
+          <li>
+            <strong>Review and summary</strong>
+            <span>Compare the final pages with the original requirements and record learning outcomes.</span>
+          </li>
+        </ol>
+      </article>
+
+      <aside class="panel">
+        <p class="eyebrow">Prompt example</p>
+        <h2>Reusable prompt</h2>
+        <p class="prompt-card">Create a responsive front-end dashboard for an international student study planner. Include task tracking, weekly schedule, focus timer, and AI suggestions. Use semantic HTML, accessible labels, clean CSS, and JavaScript interactions without external libraries.</p>
+      </aside>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Library</p>
+          <h2>Learning resources</h2>
+        </div>
+        <div class="chip-row" aria-label="Resource filters">
+          <button class="chip active" data-filter="all" type="button">All</button>
+          <button class="chip" data-filter="prompt" type="button">Prompts</button>
+          <button class="chip" data-filter="code" type="button">Code</button>
+          <button class="chip" data-filter="debug" type="button">Debug</button>
+        </div>
+      </div>
+
+      <div class="resource-grid" id="resourceGrid">
+        <article class="resource-card" data-category="prompt">
+          <span>Prompt</span>
+          <h3>Requirement analysis prompt</h3>
+          <p>Ask AI to list users, page goals, functional modules, and acceptance criteria before writing code.</p>
+        </article>
+        <article class="resource-card" data-category="code">
+          <span>Code</span>
+          <h3>Semantic layout checklist</h3>
+          <p>Use header, main, section, article, aside, form, label, and button elements correctly.</p>
+        </article>
+        <article class="resource-card" data-category="debug">
+          <span>Debug</span>
+          <h3>Responsive review</h3>
+          <p>Resize the page under 700px, check wrapping, button sizes, spacing, and horizontal scrolling.</p>
+        </article>
+        <article class="resource-card" data-category="code">
+          <span>Code</span>
+          <h3>State interaction</h3>
+          <p>Use JavaScript event listeners for task completion, resource filtering, and timer actions.</p>
+        </article>
+        <article class="resource-card" data-category="prompt">
+          <span>Prompt</span>
+          <h3>Optimization prompt</h3>
+          <p>Ask AI to review the code for accessibility, duplicate CSS, and maintainable naming.</p>
+        </article>
+        <article class="resource-card" data-category="debug">
+          <span>Debug</span>
+          <h3>Final browser test</h3>
+          <p>Open both HTML pages locally and confirm every link, form, filter, and button works.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
