@@ -1,0 +1,343 @@
+<style>
+@keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes popIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
+.entryRow { animation: slideIn 0.35s ease; }
+.metricCard { animation: popIn 0.4s ease; transition: transform 0.2s ease; }
+.metricCard:hover { transform: translateY(-2px); }
+.barFill { transition: width 0.6s cubic-bezier(0.22,1,0.36,1); }
+.pill { transition: transform 0.15s ease; }
+.pill:hover { transform: scale(1.05); }
+#addBtn { transition: transform 0.15s ease; }
+#addBtn:active { transform: scale(0.96); }
+.langBtn { transition: all 0.15s ease; }
+.langBtn.active { background:#D85A30 !important; color:#fff !important; border-color:#D85A30 !important; }
+</style>
+
+<h2 class="sr-only" id="srTitle">রঙিন ও অ্যানিমেটেড মাসিক খরচের হিসাব রাখার টুল, ভাষা পরিবর্তনযোগ্য</h2>
+
+<div style="display:flex; justify-content:flex-end; gap:6px; margin-bottom:0.75rem;">
+  <button id="langBn" class="langBtn active" style="padding:4px 12px; font-size:12px; height:auto;">বাংলা</button>
+  <button id="langEn" class="langBtn" style="padding:4px 12px; font-size:12px; height:auto;">English</button>
+</div>
+
+<div style="display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap;">
+  <select id="cycleType" style="flex:1; min-width:160px;"></select>
+  <select id="cyclePicker" style="flex:1; min-width:160px;"></select>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:1.5rem;">
+  <div class="metricCard" style="background:var(--c-purple-50,#EEEDFE); border-radius:var(--radius); padding:1rem;">
+    <p style="font-size:13px; color:#3C3489; margin:0 0 4px;"><i class="ti ti-currency-yen" style="font-size:14px; vertical-align:-2px; margin-right:4px;" aria-hidden="true"></i><span id="lblTotal"></span></p>
+    <p style="font-size:24px; font-weight:500; margin:0; color:#26215C;" id="totalOut">¥0</p>
+  </div>
+  <div class="metricCard" style="background:var(--c-teal-50,#E1F5EE); border-radius:var(--radius); padding:1rem; animation-delay:0.05s;">
+    <p style="font-size:13px; color:#085041; margin:0 0 4px;"><i class="ti ti-list-check" style="font-size:14px; vertical-align:-2px; margin-right:4px;" aria-hidden="true"></i><span id="lblCount"></span></p>
+    <p style="font-size:24px; font-weight:500; margin:0; color:#04342C;" id="countOut">0</p>
+  </div>
+  <div class="metricCard" style="background:var(--c-coral-50,#FAECE7); border-radius:var(--radius); padding:1rem; animation-delay:0.1s;">
+    <p style="font-size:13px; color:#993C1D; margin:0 0 4px;"><i class="ti ti-flame" style="font-size:14px; vertical-align:-2px; margin-right:4px;" aria-hidden="true"></i><span id="lblTopCat"></span></p>
+    <p style="font-size:16px; font-weight:500; margin:0; color:#4A1B0C;" id="topCatOut">-</p>
+  </div>
+</div>
+
+<div id="breakdownWrap" style="margin-bottom:1.5rem;"></div>
+
+<div style="background:var(--surface-2); border-radius:12px; border:0.5px solid var(--border); padding:1rem 1.25rem; margin-bottom:1.5rem;">
+  <p style="font-size:14px; font-weight:500; margin:0 0 12px;"><i class="ti ti-plus" style="font-size:16px; vertical-align:-2px; margin-right:6px; color:#D85A30;" aria-hidden="true"></i><span id="lblAddExpense"></span></p>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin-bottom:8px;">
+    <input type="date" id="dateIn" />
+    <div style="position:relative; display:flex; align-items:center;">
+      <i class="ti ti-currency-yen" style="position:absolute; left:10px; font-size:15px; color:var(--text-muted); pointer-events:none;" aria-hidden="true"></i>
+      <input type="number" id="amountIn" placeholder="" min="0" step="1" style="width:100%; padding-left:30px;" />
+    </div>
+    <select id="catIn"></select>
+  </div>
+  <input type="text" id="noteIn" placeholder="" style="width:100%; margin-bottom:8px;" />
+  <button id="addBtn" style="width:100%; background:#D85A30; color:#fff; border:none;"><i class="ti ti-plus" style="font-size:16px; vertical-align:-2px; margin-right:6px;" aria-hidden="true"></i><span id="lblAddBtn"></span></button>
+</div>
+
+<div id="listWrap">
+  <p style="font-size:14px; font-weight:500; margin:0 0 8px;" id="lblListTitle"></p>
+  <div id="entryList"></div>
+</div>
+
+<script>
+(function(){
+  var STORE_KEY = 'expenses_v1';
+  var LANG_KEY = 'lang_pref_v1';
+  var all = [];
+  var lang = 'bn';
+
+  var CATS = [
+    { key:'food', bn:'খাবার', en:'Food', emoji:'🍚', bg:'#EAF3DE', text800:'#27500A', bar:'#639922' },
+    { key:'rent', bn:'বাসা ভাড়া', en:'Rent', emoji:'🏠', bg:'#E6F1FB', text800:'#0C447C', bar:'#378ADD' },
+    { key:'transport', bn:'যাতায়াত', en:'Transport', emoji:'🚌', bg:'#FAEEDA', text800:'#633806', bar:'#BA7517' },
+    { key:'study', bn:'পড়াশোনা', en:'Study', emoji:'📚', bg:'#EEEDFE', text800:'#3C3489', bar:'#7F77DD' },
+    { key:'clothing', bn:'পোশাক কেনাকাটা', en:'Clothing', emoji:'👕', bg:'#E1F5EE', text800:'#085041', bar:'#1D9E75' },
+    { key:'entertainment', bn:'বিনোদন', en:'Entertainment', emoji:'🎬', bg:'#FBEAF0', text800:'#72243E', bar:'#D4537E' },
+    { key:'health', bn:'স্বাস্থ্য', en:'Health', emoji:'🩺', bg:'#FCEBEB', text800:'#791F1F', bar:'#E24B4A' },
+    { key:'other', bn:'অন্যান্য', en:'Other', emoji:'📦', bg:'#F1EFE8', text800:'#444441', bar:'#888780' }
+  ];
+  function catByKey(k){ return CATS.find(function(c){return c.key===k;}) || CATS[CATS.length-1]; }
+  function catLabel(c){ return lang==='bn' ? c.bn : c.en; }
+
+  var T = {
+    bn: {
+      calendar:'১ তারিখ থেকে ৩০/৩১ তারিখ', mid:'১৫ তারিখ থেকে ১৫ তারিখ',
+      total:'মোট খরচ', count:'এন্ট্রি সংখ্যা', topCat:'সর্বোচ্চ খাত',
+      addExpense:'নতুন খরচ যোগ করুন', amountPh:'টাকার পরিমাণ', notePh:'নোট (ঐচ্ছিক)',
+      addBtn:'যোগ করুন', listTitle:'খরচের তালিকা', empty:'এই সাইকেলে কোনো খরচ যোগ করা হয়নি।',
+      breakdown:'খাত অনুযায়ী খরচ', del:'মুছুন'
+    },
+    en: {
+      calendar:'1st to 30th/31st', mid:'15th to 15th',
+      total:'Total expense', count:'Entries', topCat:'Top category',
+      addExpense:'Add new expense', amountPh:'Amount', notePh:'Note (optional)',
+      addBtn:'Add', listTitle:'Expense list', empty:'No expenses added in this cycle.',
+      breakdown:'Spending by category', del:'Delete'
+    }
+  };
+
+  function fmt(n){ return '¥' + Math.round(n).toLocaleString('en-US'); }
+
+  function applyStaticLabels(){
+    var t = T[lang];
+    document.getElementById('lblTotal').textContent = t.total;
+    document.getElementById('lblCount').textContent = t.count;
+    document.getElementById('lblTopCat').textContent = t.topCat;
+    document.getElementById('lblAddExpense').textContent = t.addExpense;
+    document.getElementById('lblAddBtn').textContent = t.addBtn;
+    document.getElementById('lblListTitle').textContent = t.listTitle;
+    document.getElementById('amountIn').placeholder = t.amountPh;
+    document.getElementById('noteIn').placeholder = t.notePh;
+
+    var cycleTypeSel = document.getElementById('cycleType');
+    var prevVal = cycleTypeSel.value || 'calendar';
+    cycleTypeSel.innerHTML =
+      '<option value="calendar">'+t.calendar+'</option>' +
+      '<option value="mid">'+t.mid+'</option>';
+    cycleTypeSel.value = prevVal;
+
+    var catIn = document.getElementById('catIn');
+    var prevCat = catIn.value || CATS[0].key;
+    catIn.innerHTML = CATS.map(function(c){ return '<option value="'+c.key+'">'+c.emoji+' '+catLabel(c)+'</option>'; }).join('');
+    catIn.value = prevCat;
+
+    document.getElementById('langBn').classList.toggle('active', lang==='bn');
+    document.getElementById('langEn').classList.toggle('active', lang==='en');
+    document.documentElement.setAttribute('data-lang', lang);
+  }
+
+  function getCycleOptions(type){
+    var opts = [];
+    var now = new Date();
+    var locale = lang==='bn' ? 'bn-BD' : 'en-US';
+    if(type === 'calendar'){
+      for(var i=0;i<6;i++){
+        var d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+        var y = d.getFullYear(), m = d.getMonth();
+        var lastDay = new Date(y, m+1, 0).getDate();
+        var start = new Date(y,m,1);
+        var end = new Date(y,m,lastDay);
+        var monthLabel = start.toLocaleDateString(locale,{month:'long',year:'numeric'});
+        opts.push({
+          label: lang==='bn' ? (monthLabel + ' (১ - ' + lastDay + ')') : (monthLabel + ' (1 - ' + lastDay + ')'),
+          start: start, end: end
+        });
+      }
+    } else {
+      for(var i=0;i<6;i++){
+        var base = new Date(now.getFullYear(), now.getMonth()-i, 15);
+        var start = new Date(base.getFullYear(), base.getMonth(), 15);
+        var end = new Date(base.getFullYear(), base.getMonth()+1, 14);
+        var lbl = lang==='bn'
+          ? ((start.getMonth()+1)+'/'+start.getFullYear()+' এর ১৫ - '+(end.getMonth()+1)+'/'+end.getFullYear()+' এর ১৫')
+          : ((start.getMonth()+1)+'/'+start.getFullYear()+' 15th - '+(end.getMonth()+1)+'/'+end.getFullYear()+' 15th');
+        opts.push({ label: lbl, start: start, end: end });
+      }
+    }
+    return opts;
+  }
+
+  var cycleTypeSel = document.getElementById('cycleType');
+  var cyclePickerSel = document.getElementById('cyclePicker');
+  var currentOpts = [];
+
+  function refreshCyclePicker(){
+    currentOpts = getCycleOptions(cycleTypeSel.value);
+    cyclePickerSel.innerHTML = '';
+    currentOpts.forEach(function(o, idx){
+      var opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = o.label;
+      cyclePickerSel.appendChild(opt);
+    });
+    render();
+  }
+
+  cycleTypeSel.addEventListener('change', refreshCyclePicker);
+  cyclePickerSel.addEventListener('change', render);
+
+  async function setLang(newLang){
+    lang = newLang;
+    try{ await window.storage.set(LANG_KEY, lang, false); }catch(e){}
+    applyStaticLabels();
+    refreshCyclePicker();
+  }
+  document.getElementById('langBn').addEventListener('click', function(){ setLang('bn'); });
+  document.getElementById('langEn').addEventListener('click', function(){ setLang('en'); });
+
+  async function load(){
+    try{
+      var langRes = await window.storage.get(LANG_KEY, false);
+      if(langRes && langRes.value) lang = langRes.value;
+    }catch(e){}
+    try{
+      var res = await window.storage.get(STORE_KEY, false);
+      all = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){ all = []; }
+    applyStaticLabels();
+    refreshCyclePicker();
+  }
+
+  async function save(){
+    try{ await window.storage.set(STORE_KEY, JSON.stringify(all), false); }
+    catch(e){ console.error('save failed', e); }
+  }
+
+  function animateNumber(el, to){
+    var from = 0;
+    var start = null;
+    var dur = 500;
+    function step(ts){
+      if(!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1-p, 3);
+      el.textContent = fmt(from + (to-from)*eased);
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = fmt(to);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function render(){
+    var t = T[lang];
+    var idx = parseInt(cyclePickerSel.value || 0);
+    var range = currentOpts[idx];
+    var listEl = document.getElementById('entryList');
+    var breakdownEl = document.getElementById('breakdownWrap');
+    listEl.innerHTML = '';
+    breakdownEl.innerHTML = '';
+    if(!range){ return; }
+    var filtered = all.filter(function(e){
+      var d = new Date(e.date);
+      return d >= range.start && d <= new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate(), 23,59,59);
+    }).sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+
+    var total = 0;
+    var catTotals = {};
+    filtered.forEach(function(e){
+      total += Number(e.amount);
+      catTotals[e.category] = (catTotals[e.category]||0) + Number(e.amount);
+    });
+    animateNumber(document.getElementById('totalOut'), total);
+    document.getElementById('countOut').textContent = filtered.length;
+    var topCatKey = null, topVal = 0;
+    Object.keys(catTotals).forEach(function(c){ if(catTotals[c] > topVal){ topVal = catTotals[c]; topCatKey = c; } });
+    if(topCatKey){
+      var tc = catByKey(topCatKey);
+      document.getElementById('topCatOut').textContent = tc.emoji + ' ' + catLabel(tc);
+    } else {
+      document.getElementById('topCatOut').textContent = '-';
+    }
+
+    var catKeys = Object.keys(catTotals).sort(function(a,b){ return catTotals[b]-catTotals[a]; });
+    if(catKeys.length){
+      var bd = document.createElement('div');
+      bd.style.cssText = 'background:var(--surface-2); border-radius:12px; border:0.5px solid var(--border); padding:1rem 1.25rem;';
+      var bdTitle = document.createElement('p');
+      bdTitle.style.cssText = 'font-size:14px; font-weight:500; margin:0 0 12px;';
+      bdTitle.innerHTML = '<i class="ti ti-chart-bar" style="font-size:16px; vertical-align:-2px; margin-right:6px; color:#7F77DD;" aria-hidden="true"></i>' + t.breakdown;
+      bd.appendChild(bdTitle);
+      catKeys.forEach(function(ck){
+        var col = catByKey(ck);
+        var pct = total > 0 ? (catTotals[ck]/total*100) : 0;
+        var row = document.createElement('div');
+        row.style.cssText = 'margin-bottom:10px;';
+        row.innerHTML =
+          '<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">' +
+            '<span>' + col.emoji + ' ' + catLabel(col) + '</span>' +
+            '<span style="font-weight:500;">' + fmt(catTotals[ck]) + '</span>' +
+          '</div>' +
+          '<div style="background:'+col.bg+'; border-radius:6px; height:8px; overflow:hidden;">' +
+            '<div class="barFill" style="background:'+col.bar+'; height:100%; width:0%; border-radius:6px;" data-pct="'+pct+'"></div>' +
+          '</div>';
+        bd.appendChild(row);
+      });
+      breakdownEl.appendChild(bd);
+      setTimeout(function(){
+        Array.prototype.forEach.call(bd.querySelectorAll('.barFill'), function(b){
+          b.style.width = b.getAttribute('data-pct') + '%';
+        });
+      }, 30);
+    }
+
+    if(filtered.length === 0){
+      var empty = document.createElement('p');
+      empty.style.cssText = 'font-size:13px; color:var(--text-muted); padding:1rem 0;';
+      empty.textContent = t.empty;
+      listEl.appendChild(empty);
+      return;
+    }
+
+    var dateLocale = lang==='bn' ? 'bn-BD' : 'en-US';
+    filtered.forEach(function(e, i){
+      var col = catByKey(e.category);
+      var row = document.createElement('div');
+      row.className = 'entryRow';
+      row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:0.5px solid var(--border); gap:8px; animation-delay:' + (i*0.03) + 's;';
+      var d = new Date(e.date);
+      var dateStr = d.toLocaleDateString(dateLocale, {day:'numeric', month:'short'});
+      row.innerHTML =
+        '<div style="display:flex; align-items:center; gap:10px; min-width:0;">' +
+          '<span class="pill" style="background:'+col.bg+'; color:'+col.text800+'; font-size:12px; padding:3px 10px; border-radius:20px; font-weight:500; white-space:nowrap;">' + col.emoji + ' ' + catLabel(col) + '</span>' +
+          '<div style="min-width:0;">' +
+            (e.note ? '<p style="font-size:13px; margin:0; color:var(--text-secondary);">'+e.note+'</p>' : '') +
+            '<p style="font-size:12px; color:var(--text-muted); margin:0;">' + dateStr + '</p>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">' +
+          '<span style="font-size:14px; font-weight:500; color:'+col.text800+';">' + fmt(e.amount) + '</span>' +
+          '<button data-id="'+e.id+'" class="delBtn" aria-label="'+t.del+'" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><i class="ti ti-trash" style="font-size:14px;" aria-hidden="true"></i></button>' +
+        '</div>';
+      listEl.appendChild(row);
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('.delBtn'), function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.getAttribute('data-id');
+        all = all.filter(function(e){ return String(e.id) !== String(id); });
+        await save();
+        render();
+      });
+    });
+  }
+
+  document.getElementById('dateIn').value = new Date().toISOString().slice(0,10);
+
+  document.getElementById('addBtn').addEventListener('click', async function(){
+    var date = document.getElementById('dateIn').value;
+    var amount = parseFloat(document.getElementById('amountIn').value);
+    var category = document.getElementById('catIn').value;
+    var note = document.getElementById('noteIn').value.trim();
+    if(!date || !amount || amount <= 0){ return; }
+    all.push({ id: Date.now(), date: date, amount: amount, category: category, note: note });
+    await save();
+    document.getElementById('amountIn').value = '';
+    document.getElementById('noteIn').value = '';
+    render();
+  });
+
+  load();
+})();
+</script>
