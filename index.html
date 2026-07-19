@@ -164,6 +164,13 @@
       <select id="catIn"></select>
     </div>
     <input type="text" id="noteIn" placeholder="" />
+    <div id="fileRow" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+      <label for="fileIn" style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); cursor:pointer; border:0.5px dashed var(--border); border-radius:var(--radius); padding:6px 12px; height:auto;">
+        <i class="ti ti-paperclip"></i> <span id="lblAttach"></span>
+      </label>
+      <input type="file" id="fileIn" accept="image/*,.pdf" style="display:none;" />
+      <span id="fileNameOut" style="font-size:12px; color:var(--text-muted);"></span>
+    </div>
     <button id="addBtn"><i class="ti ti-plus"></i> <span id="lblAddBtn"></span></button>
   </div>
 
@@ -177,6 +184,9 @@
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getStorage, ref, uploadBytes, getDownloadURL, deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import {
   getFirestore, collection, addDoc, deleteDoc, doc,
   onSnapshot, query, orderBy, where, serverTimestamp
@@ -199,6 +209,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 const expensesRef = collection(db, "expenses");
 
 let currentUser = null;
@@ -218,6 +229,9 @@ const EXPENSE_CATS = [
   { key:'clothing', bn:'পোশাক কেনাকাটা', en:'Clothing', emoji:'👕', bg:'#E1F5EE', text800:'#085041', bar:'#1D9E75' },
   { key:'entertainment', bn:'বিনোদন', en:'Entertainment', emoji:'🎬', bg:'#FBEAF0', text800:'#72243E', bar:'#D4537E' },
   { key:'health', bn:'স্বাস্থ্য', en:'Health', emoji:'🩺', bg:'#FCEBEB', text800:'#791F1F', bar:'#E24B4A' },
+  { key:'family_exp', bn:'পারিবারিক খরচ', en:'Family', emoji:'👨‍👩‍👧', bg:'#FDEBEF', text800:'#8A2846', bar:'#C74A75' },
+  { key:'mobile_net', bn:'মোবাইল/ইন্টারনেট', en:'Mobile/Internet', emoji:'📱', bg:'#E7F4F6', text800:'#0C5D66', bar:'#1E9AA8' },
+  { key:'gifts', bn:'উপহার/অনুদান', en:'Gifts/Donation', emoji:'🎁', bg:'#F3ECFB', text800:'#5B2A87', bar:'#9857C9' },
   { key:'other_exp', bn:'অন্যান্য', en:'Other', emoji:'📦', bg:'#F1EFE8', text800:'#444441', bar:'#888780' }
 ];
 const INCOME_CATS = [
@@ -248,7 +262,8 @@ const T = {
     loginBtn:'লগইন করুন', signupBtn:'অ্যাকাউন্ট তৈরি করুন', logout:'লগআউট',
     errEmailInUse:'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট আছে, লগইন করুন',
     errWrongPass:'ইমেইল অথবা পাসওয়ার্ড ভুল', errWeakPass:'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে',
-    errInvalidEmail:'সঠিক ইমেইল দিন', errGeneric:'সমস্যা হয়েছে, আবার চেষ্টা করুন'
+    errInvalidEmail:'সঠিক ইমেইল দিন', errGeneric:'সমস্যা হয়েছে, আবার চেষ্টা করুন',
+    attach:'ছবি/ডকুমেন্ট যোগ করুন', uploading:'আপলোড হচ্ছে...', viewFile:'দেখুন'
   },
   en: {
     calendar:'1st to 30th/31st', mid:'15th to 15th',
@@ -263,7 +278,8 @@ const T = {
     loginBtn:'Log in', signupBtn:'Create account', logout:'Log out',
     errEmailInUse:'An account with this email already exists, please log in',
     errWrongPass:'Wrong email or password', errWeakPass:'Password must be at least 6 characters',
-    errInvalidEmail:'Enter a valid email', errGeneric:'Something went wrong, try again'
+    errInvalidEmail:'Enter a valid email', errGeneric:'Something went wrong, try again',
+    attach:'Attach photo/document', uploading:'Uploading...', viewFile:'View'
   }
 };
 
@@ -357,6 +373,7 @@ function applyStaticLabels(){
   document.getElementById('lblListTitle').textContent = t.listTitle;
   document.getElementById('amountIn').placeholder = t.amountPh;
   document.getElementById('noteIn').placeholder = t.notePh;
+  document.getElementById('lblAttach').textContent = t.attach;
   document.getElementById('typeExpenseBtn').textContent = t.typeExpense;
   document.getElementById('typeIncomeBtn').textContent = t.typeIncome;
   document.getElementById('logoutBtn').textContent = t.logout;
@@ -538,12 +555,15 @@ function render(){
     const dateStr = d.toLocaleDateString(dateLocale, {day:'numeric', month:'short'});
     const sign = type === 'income' ? '+' : '−';
     const amountColor = type === 'income' ? '#085041' : '#993C1D';
+    const attachHtml = e.fileUrl
+      ? `<a href="${e.fileUrl}" target="_blank" rel="noopener" style="font-size:11px; color:#378ADD; text-decoration:none; display:inline-flex; align-items:center; gap:2px;"><i class="ti ti-paperclip" style="font-size:12px;"></i> ${T[lang].viewFile}</a>`
+      : '';
     row.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; min-width:0;">
         <span class="pill" style="background:${col.bg}; color:${col.text800};">${col.emoji} ${catLabel(col)}</span>
         <div style="min-width:0;">
           ${e.note ? `<p class="entryNote">${e.note}</p>` : ''}
-          <p class="entryDate">${dateStr}</p>
+          <p class="entryDate">${dateStr} ${attachHtml}</p>
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
@@ -565,6 +585,9 @@ function render(){
       if(!window.confirm(confirmMsg)) return;
       try {
         await deleteDoc(doc(db, "expenses", id));
+        if(entry && entry.fileUrl){
+          try { await deleteObject(ref(storage, entry.fileUrl)); } catch(fe){ /* file may already be gone, ignore */ }
+        }
       } catch(err){ console.error('delete failed', err); alert(lang==='bn' ? 'মুছতে সমস্যা হয়েছে, আবার চেষ্টা করুন' : 'Delete failed, try again'); }
     });
   });
@@ -572,20 +595,48 @@ function render(){
 
 document.getElementById('dateIn').value = new Date().toISOString().slice(0,10);
 
+document.getElementById('fileIn').addEventListener('change', () => {
+  const f = document.getElementById('fileIn').files[0];
+  document.getElementById('fileNameOut').textContent = f ? f.name : '';
+});
+
 document.getElementById('addBtn').addEventListener('click', async () => {
   if(!currentUser) return;
   const date = document.getElementById('dateIn').value;
   const amount = parseFloat(document.getElementById('amountIn').value);
   const category = document.getElementById('catIn').value;
   const note = document.getElementById('noteIn').value.trim();
+  const file = document.getElementById('fileIn').files[0];
   if(!date || !amount || amount <= 0) return;
+
+  const addBtn = document.getElementById('addBtn');
+  const originalLabel = addBtn.innerHTML;
   try {
-    await addDoc(expensesRef, { date, amount, category, note, type: currentType, uid: currentUser.uid, createdAt: serverTimestamp() });
+    let fileUrl = null, fileName = null;
+    if(file){
+      addBtn.disabled = true;
+      addBtn.innerHTML = `<i class="ti ti-loader-2"></i> ${T[lang].uploading}`;
+      const path = `receipts/${currentUser.uid}/${Date.now()}_${file.name}`;
+      const fileRef = ref(storage, path);
+      await uploadBytes(fileRef, file);
+      fileUrl = await getDownloadURL(fileRef);
+      fileName = file.name;
+    }
+    await addDoc(expensesRef, {
+      date, amount, category, note, type: currentType, uid: currentUser.uid,
+      fileUrl: fileUrl || null, fileName: fileName || null,
+      createdAt: serverTimestamp()
+    });
     document.getElementById('amountIn').value = '';
     document.getElementById('noteIn').value = '';
+    document.getElementById('fileIn').value = '';
+    document.getElementById('fileNameOut').textContent = '';
   } catch(err){
     console.error('add failed', err);
     alert(lang==='bn' ? 'যোগ করতে সমস্যা হয়েছে' : 'Failed to add entry');
+  } finally {
+    addBtn.disabled = false;
+    addBtn.innerHTML = originalLabel;
   }
 });
 
