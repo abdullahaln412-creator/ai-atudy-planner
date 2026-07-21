@@ -7,13 +7,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css" />
 <style>
   :root {
-    --surface-2: #ffffff;
-    --surface-1: #f7f6f2;
-    --surface-0: #f1efe8;
-    --text-primary: #1a1a1a;
-    --text-secondary: #5f5e5a;
-    --text-muted: #8a8880;
-    --border: #e3e1d9;
+    --surface-2: #26303f;
+    --surface-1: #1e2733;
+    --surface-0: #161d27;
+    --text-primary: #eceff4;
+    --text-secondary: #aab4c4;
+    --text-muted: #7c8798;
+    --border: #384454;
     --radius: 8px;
   }
   * { box-sizing: border-box; }
@@ -133,17 +133,17 @@
   </div>
 
   <div class="metrics">
-    <div class="metricCard" style="background:#E1F5EE;">
-      <p style="color:#085041;"><i class="ti ti-arrow-up-circle"></i> <span id="lblIncome"></span></p>
-      <p style="color:#04342C;" id="incomeOut">¥0</p>
+    <div class="metricCard" style="background:#0F5C46;">
+      <p style="color:#8FE3C4;"><i class="ti ti-arrow-up-circle"></i> <span id="lblIncome"></span></p>
+      <p style="color:#ffffff;" id="incomeOut">¥0</p>
     </div>
-    <div class="metricCard" style="background:#FAECE7; animation-delay:0.05s;">
-      <p style="color:#993C1D;"><i class="ti ti-arrow-down-circle"></i> <span id="lblExpense"></span></p>
-      <p style="color:#4A1B0C;" id="expenseOut">¥0</p>
+    <div class="metricCard" style="background:#8A2E1E; animation-delay:0.05s;">
+      <p style="color:#F3B79E;"><i class="ti ti-arrow-down-circle"></i> <span id="lblExpense"></span></p>
+      <p style="color:#ffffff;" id="expenseOut">¥0</p>
     </div>
-    <div class="metricCard" id="balanceCard" style="background:#EEEDFE; animation-delay:0.1s;">
-      <p style="color:#3C3489;"><i class="ti ti-scale"></i> <span id="lblBalance"></span></p>
-      <p style="color:#26215C;" id="balanceOut">¥0</p>
+    <div class="metricCard" id="balanceCard" style="background:#453B8C; animation-delay:0.1s;">
+      <p style="color:#C7BFF0;"><i class="ti ti-scale"></i> <span id="lblBalance"></span></p>
+      <p style="color:#ffffff;" id="balanceOut">¥0</p>
     </div>
   </div>
 
@@ -165,7 +165,7 @@
     </div>
     <input type="text" id="noteIn" placeholder="" />
     <div id="fileRow" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-      <label for="fileIn" style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); cursor:pointer; border:0.5px dashed var(--border); border-radius:var(--radius); padding:6px 12px; height:auto;">
+      <label for="fileIn" style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#fff; cursor:pointer; background:#7F5AF0; border:none; border-radius:var(--radius); padding:8px 14px; height:auto; transition:transform 0.15s ease, background 0.15s ease;" onmouseover="this.style.background='#6B47DE'" onmouseout="this.style.background='#7F5AF0'">
         <i class="ti ti-paperclip"></i> <span id="lblAttach"></span>
       </label>
       <input type="file" id="fileIn" accept="image/*,.pdf" style="display:none;" />
@@ -221,25 +221,25 @@ let listFilter = 'all';
 let authMode = 'login'; // 'login' | 'signup'
 
 const EXPENSE_CATS = [
-  { key:'food', bn:'খাবার', en:'Food', emoji:'🍚', bg:'#EAF3DE', text800:'#27500A', bar:'#639922' },
-  { key:'rent', bn:'বাসা ভাড়া', en:'Rent', emoji:'🏠', bg:'#E6F1FB', text800:'#0C447C', bar:'#378ADD' },
-  { key:'electric', bn:'বিদ্যুৎ বিল', en:'Electric bill', emoji:'💡', bg:'#FEF6D8', text800:'#7A5B05', bar:'#D4A017' },
-  { key:'transport', bn:'যাতায়াত', en:'Transport', emoji:'🚌', bg:'#FAEEDA', text800:'#633806', bar:'#BA7517' },
-  { key:'study', bn:'পড়াশোনা', en:'Study', emoji:'📚', bg:'#EEEDFE', text800:'#3C3489', bar:'#7F77DD' },
-  { key:'clothing', bn:'পোশাক কেনাকাটা', en:'Clothing', emoji:'👕', bg:'#E1F5EE', text800:'#085041', bar:'#1D9E75' },
-  { key:'entertainment', bn:'বিনোদন', en:'Entertainment', emoji:'🎬', bg:'#FBEAF0', text800:'#72243E', bar:'#D4537E' },
-  { key:'health', bn:'স্বাস্থ্য', en:'Health', emoji:'🩺', bg:'#FCEBEB', text800:'#791F1F', bar:'#E24B4A' },
-  { key:'family_exp', bn:'পারিবারিক খরচ', en:'Family', emoji:'👨‍👩‍👧', bg:'#FDEBEF', text800:'#8A2846', bar:'#C74A75' },
-  { key:'mobile_net', bn:'মোবাইল/ইন্টারনেট', en:'Mobile/Internet', emoji:'📱', bg:'#E7F4F6', text800:'#0C5D66', bar:'#1E9AA8' },
-  { key:'gifts', bn:'উপহার/অনুদান', en:'Gifts/Donation', emoji:'🎁', bg:'#F3ECFB', text800:'#5B2A87', bar:'#9857C9' },
-  { key:'other_exp', bn:'অন্যান্য', en:'Other', emoji:'📦', bg:'#F1EFE8', text800:'#444441', bar:'#888780' }
+  { key:'food', bn:'খাবার', en:'Food', emoji:'🍚', bg:'#3D5A1E', text800:'#D9F0B8', bar:'#7BB238' },
+  { key:'rent', bn:'বাসা ভাড়া', en:'Rent', emoji:'🏠', bg:'#1D4E7A', text800:'#BFE0FF', bar:'#3E93DE' },
+  { key:'electric', bn:'বিদ্যুৎ বিল', en:'Electric bill', emoji:'💡', bg:'#7A5B05', text800:'#FBE7A8', bar:'#D4A017' },
+  { key:'transport', bn:'যাতায়াত', en:'Transport', emoji:'🚌', bg:'#7A4A08', text800:'#FBD9A8', bar:'#C98424' },
+  { key:'study', bn:'পড়াশোনা', en:'Study', emoji:'📚', bg:'#40358F', text800:'#D6D1FA', bar:'#8378E8' },
+  { key:'clothing', bn:'পোশাক কেনাকাটা', en:'Clothing', emoji:'👕', bg:'#0F6B52', text800:'#A8F0DA', bar:'#25B98C' },
+  { key:'entertainment', bn:'বিনোদন', en:'Entertainment', emoji:'🎬', bg:'#7A2A4A', text800:'#F5C4DA', bar:'#DE5B8C' },
+  { key:'health', bn:'স্বাস্থ্য', en:'Health', emoji:'🩺', bg:'#7A1F1F', text800:'#F5B8B8', bar:'#DE4B4B' },
+  { key:'family_exp', bn:'পারিবারিক খরচ', en:'Family', emoji:'👨‍👩‍👧', bg:'#7A2848', text800:'#F5BDD5', bar:'#D64F82' },
+  { key:'mobile_net', bn:'মোবাইল/ইন্টারনেট', en:'Mobile/Internet', emoji:'📱', bg:'#0C5D66', text800:'#A8E8EF', bar:'#20A4B3' },
+  { key:'gifts', bn:'উপহার/অনুদান', en:'Gifts/Donation', emoji:'🎁', bg:'#5B2A87', text800:'#DCC4F5', bar:'#A560D9' },
+  { key:'other_exp', bn:'অন্যান্য', en:'Other', emoji:'📦', bg:'#4A4A46', text800:'#DDDCD6', bar:'#8F8E86' }
 ];
 const INCOME_CATS = [
-  { key:'family', bn:'পারিবারিক সহায়তা', en:'Family support', emoji:'👨‍👩‍👧', bg:'#E1F5EE', text800:'#085041', bar:'#1D9E75' },
-  { key:'scholarship', bn:'বৃত্তি', en:'Scholarship', emoji:'🎓', bg:'#EEEDFE', text800:'#3C3489', bar:'#7F77DD' },
-  { key:'salary', bn:'বেতন/পার্ট-টাইম', en:'Salary/Part-time', emoji:'💼', bg:'#E6F1FB', text800:'#0C447C', bar:'#378ADD' },
-  { key:'freelance', bn:'ফ্রিল্যান্স', en:'Freelance', emoji:'💻', bg:'#FAEEDA', text800:'#633806', bar:'#BA7517' },
-  { key:'other_inc', bn:'অন্যান্য', en:'Other', emoji:'📦', bg:'#F1EFE8', text800:'#444441', bar:'#888780' }
+  { key:'family', bn:'পারিবারিক সহায়তা', en:'Family support', emoji:'👨‍👩‍👧', bg:'#0F6B52', text800:'#A8F0DA', bar:'#25B98C' },
+  { key:'scholarship', bn:'বৃত্তি', en:'Scholarship', emoji:'🎓', bg:'#40358F', text800:'#D6D1FA', bar:'#8378E8' },
+  { key:'salary', bn:'বেতন/পার্ট-টাইম', en:'Salary/Part-time', emoji:'💼', bg:'#1D4E7A', text800:'#BFE0FF', bar:'#3E93DE' },
+  { key:'freelance', bn:'ফ্রিল্যান্স', en:'Freelance', emoji:'💻', bg:'#7A4A08', text800:'#FBD9A8', bar:'#C98424' },
+  { key:'other_inc', bn:'অন্যান্য', en:'Other', emoji:'📦', bg:'#4A4A46', text800:'#DDDCD6', bar:'#8F8E86' }
 ];
 function catsForType(type){ return type === 'income' ? INCOME_CATS : EXPENSE_CATS; }
 function catByKey(k, type){
@@ -504,11 +504,11 @@ function render(){
   balEl.textContent = (balance < 0 ? '-' : '') + fmt(Math.abs(balance));
   const balCard = document.getElementById('balanceCard');
   if(balance < 0){
-    balCard.style.background = '#FAECE7';
-    balEl.style.color = '#4A1B0C';
+    balCard.style.background = '#8A2E1E';
+    balEl.style.color = '#ffffff';
   } else {
-    balCard.style.background = '#EEEDFE';
-    balEl.style.color = '#26215C';
+    balCard.style.background = '#453B8C';
+    balEl.style.color = '#ffffff';
   }
 
   const catKeys = Object.keys(catTotals).sort((a,b) => catTotals[b]-catTotals[a]);
@@ -554,7 +554,7 @@ function render(){
     const d = parseLocalDate(e.date);
     const dateStr = d.toLocaleDateString(dateLocale, {day:'numeric', month:'short'});
     const sign = type === 'income' ? '+' : '−';
-    const amountColor = type === 'income' ? '#085041' : '#993C1D';
+    const amountColor = type === 'income' ? '#4FD9A8' : '#E8836A';
     const attachHtml = e.fileUrl
       ? `<a href="${e.fileUrl}" target="_blank" rel="noopener" style="font-size:11px; color:#378ADD; text-decoration:none; display:inline-flex; align-items:center; gap:2px;"><i class="ti ti-paperclip" style="font-size:12px;"></i> ${T[lang].viewFile}</a>`
       : '';
